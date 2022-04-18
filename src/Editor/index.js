@@ -434,6 +434,7 @@ class WysiwygEditor extends Component {
         ...translations,
       },
     };
+
     const toolbarShow =
       editorFocused || this.focusHandler.isInputFocused() || !toolbarOnFocus;
     return (
@@ -463,6 +464,7 @@ class WysiwygEditor extends Component {
               if (opt === 'image' && uploadCallback) {
                 config.uploadCallback = uploadCallback;
               }
+              
               return <Control key={index} {...controlProps} config={config} />;
             })}
             {toolbarCustomButtons &&

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { getSelectionInlineStyle } from 'draftjs-utils';
-import { RichUtils, EditorState, Modifier } from 'draft-js';
+import { RichUtils, EditorState, Modifier, SelectionState } from 'draft-js';
 import { forEach } from '../../utils/common';
 
 import LayoutComponent from './Component';
@@ -51,10 +51,36 @@ export default class Inline extends Component {
     this.signalExpanded = false;
   };
 
+  getStateEntry = (name, state) => state._map._root.entries.find(E => E[0] === name)[1]
+
   toggleInlineStyle = style => {
     const newStyle = style === 'monospace' ? 'CODE' : style.toUpperCase();
     const { editorState, onChange } = this.props;
-    let newState = RichUtils.toggleInlineStyle(editorState, newStyle);
+    let selection = editorState.getSelection()
+    const anchor = selection.getAnchorOffset();
+    const focus = selection.getFocusOffset();
+    let newState = editorState;
+    let oldSelection = selection;
+    if (selection.getAnchorOffset() == selection.getFocusOffset()) {
+      const currentContent = editorState.getCurrentContent();
+      const firstBlock = currentContent.getBlockMap().first();
+      const lastBlock = currentContent.getBlockMap().last();
+      const firstBlockKey = firstBlock.getKey();
+      const lastBlockKey = lastBlock.getKey();
+      const lengthOfLastBlock = lastBlock.getLength();
+
+      selection = new SelectionState({
+        anchorKey: firstBlockKey,
+        anchorOffset: 0,
+        focusKey: lastBlockKey,
+        focusOffset: lengthOfLastBlock,
+      });
+
+      newState = EditorState.set(newState, { selection });
+    }
+    console.log('-----------------------------------------------------')
+    console.log(editorState.getSelection())
+    newState = RichUtils.toggleInlineStyle(newState, newStyle);
     if (style === 'subscript' || style === 'superscript') {
       const removeStyle = style === 'subscript' ? 'SUPERSCRIPT' : 'SUBSCRIPT';
       const contentState = Modifier.removeInlineStyle(
@@ -67,6 +93,9 @@ export default class Inline extends Component {
         contentState,
         'change-inline-style'
       );
+    }
+    if (oldSelection !== selection) {
+      newState = EditorState.set(newState, { selection: oldSelection });
     }
     if (newState) {
       onChange(newState);

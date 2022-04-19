@@ -1,6 +1,6 @@
 {
   "name": "comfolks-react-draft-wysiwyg",
-  "version": "1.14.8",
+  "version": "1.14.9",
   "description": "A wysiwyg on top of DraftJS.",
   "main": "dist/react-draft-wysiwyg.js",
   "repository": {

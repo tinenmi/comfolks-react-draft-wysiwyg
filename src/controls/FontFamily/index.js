@@ -4,6 +4,7 @@ import {
   toggleCustomInlineStyle,
   getSelectionCustomInlineStyle,
 } from 'draftjs-utils';
+import { EditorState, SelectionState } from 'draft-js';
 
 import LayoutComponent from './Component';
 
@@ -69,11 +70,34 @@ export default class FontFamily extends Component {
 
   toggleFontFamily = fontFamily => {
     const { editorState, onChange } = this.props;
-    const newState = toggleCustomInlineStyle(
-      editorState,
+    let selection = editorState.getSelection();
+    let newState = editorState;
+    let oldSelection = selection;
+    if (selection.getAnchorOffset() == selection.getFocusOffset()) {
+      const currentContent = editorState.getCurrentContent();
+      const firstBlock = currentContent.getBlockMap().first();
+      const lastBlock = currentContent.getBlockMap().last();
+      const firstBlockKey = firstBlock.getKey();
+      const lastBlockKey = lastBlock.getKey();
+      const lengthOfLastBlock = lastBlock.getLength();
+
+      selection = new SelectionState({
+        anchorKey: firstBlockKey,
+        anchorOffset: 0,
+        focusKey: lastBlockKey,
+        focusOffset: lengthOfLastBlock,
+      });
+
+      newState = EditorState.set(newState, { selection });
+    }
+    newState = toggleCustomInlineStyle(
+      newState,
       'fontFamily',
       fontFamily
     );
+    if (oldSelection !== selection) {
+      newState = EditorState.set(newState, { selection: oldSelection });
+    }
     if (newState) {
       onChange(newState);
     }

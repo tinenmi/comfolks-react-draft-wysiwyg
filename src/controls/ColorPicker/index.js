@@ -4,6 +4,7 @@ import {
   toggleCustomInlineStyle,
   getSelectionCustomInlineStyle,
 } from 'draftjs-utils';
+import { EditorState, SelectionState } from 'draft-js';
 
 import LayoutComponent from './Component';
 
@@ -84,9 +85,32 @@ class ColorPicker extends Component {
 
   toggleColor = (style, color) => {
     const { editorState, onChange } = this.props;
-    const newState = toggleCustomInlineStyle(editorState, style, color);
+    let selection = editorState.getSelection();
+    let newState = editorState;
+    let oldSelection = selection;
+    if (selection.getAnchorOffset() == selection.getFocusOffset()) {
+      const currentContent = editorState.getCurrentContent();
+      const firstBlock = currentContent.getBlockMap().first();
+      const lastBlock = currentContent.getBlockMap().last();
+      const firstBlockKey = firstBlock.getKey();
+      const lastBlockKey = lastBlock.getKey();
+      const lengthOfLastBlock = lastBlock.getLength();
+
+      selection = new SelectionState({
+        anchorKey: firstBlockKey,
+        anchorOffset: 0,
+        focusKey: lastBlockKey,
+        focusOffset: lengthOfLastBlock,
+      });
+
+      newState = EditorState.set(newState, { selection });
+    }
+    newState = toggleCustomInlineStyle(newState, style, color);
     if (newState) {
       onChange(newState);
+    }
+    if (oldSelection !== selection) {
+      newState = EditorState.set(newState, { selection: oldSelection });
     }
     this.doCollapse();
   };

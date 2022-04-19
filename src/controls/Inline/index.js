@@ -56,9 +56,7 @@ export default class Inline extends Component {
   toggleInlineStyle = style => {
     const newStyle = style === 'monospace' ? 'CODE' : style.toUpperCase();
     const { editorState, onChange } = this.props;
-    let selection = editorState.getSelection()
-    const anchor = selection.getAnchorOffset();
-    const focus = selection.getFocusOffset();
+    let selection = editorState.getSelection();
     let newState = editorState;
     let oldSelection = selection;
     if (selection.getAnchorOffset() == selection.getFocusOffset()) {
@@ -78,8 +76,7 @@ export default class Inline extends Component {
 
       newState = EditorState.set(newState, { selection });
     }
-    console.log('-----------------------------------------------------')
-    console.log(editorState.getSelection())
+
     newState = RichUtils.toggleInlineStyle(newState, newStyle);
     if (style === 'subscript' || style === 'superscript') {
       const removeStyle = style === 'subscript' ? 'SUPERSCRIPT' : 'SUBSCRIPT';

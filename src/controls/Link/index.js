@@ -162,7 +162,11 @@ class Link extends Component {
 
     let newEditorState = editorState;
     let oldSelection = selection;
+<<<<<<< HEAD
     if (selection.getAnchorOffset() == selection.getFocusOffset() || !this.props.editorFocused) {
+=======
+    if (selection.getAnchorOffset() == selection.getFocusOffset()) {
+>>>>>>> 8786d4fba5cc10cf419c7647cdb0b23ca4d6f2b3
       const currentContent = editorState.getCurrentContent();
       const firstBlock = currentContent.getBlockMap().first();
       const lastBlock = currentContent.getBlockMap().last();

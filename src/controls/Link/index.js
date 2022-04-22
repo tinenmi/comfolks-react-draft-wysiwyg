@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { RichUtils, EditorState, Modifier } from 'draft-js';
+import { RichUtils, EditorState, Modifier, SelectionState } from 'draft-js';
 import {
   getSelectionText,
   getEntityRange,
@@ -22,6 +22,7 @@ const linkifyLink = params => {
 class Link extends Component {
   static propTypes = {
     editorState: PropTypes.object.isRequired,
+    editorFocused: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
     modalHandler: PropTypes.object,
     config: PropTypes.object,
@@ -89,7 +90,27 @@ class Link extends Component {
         contentState.getEntity(currentEntity).get('data').targetOption;
       currentValues.link.title = entityRange && entityRange.text;
     }
-    currentValues.selectionText = getSelectionText(editorState);
+    let selection = editorState.getSelection();
+
+    let newEditorState = editorState;
+    if (selection.getAnchorOffset() == selection.getFocusOffset() || !this.props.editorFocused) {
+      const currentContent = editorState.getCurrentContent();
+      const firstBlock = currentContent.getBlockMap().first();
+      const lastBlock = currentContent.getBlockMap().last();
+      const firstBlockKey = firstBlock.getKey();
+      const lastBlockKey = lastBlock.getKey();
+      const lengthOfLastBlock = lastBlock.getLength();
+
+      selection = new SelectionState({
+        anchorKey: firstBlockKey,
+        anchorOffset: 0,
+        focusKey: lastBlockKey,
+        focusOffset: lengthOfLastBlock,
+      });
+
+      newEditorState = EditorState.set(newEditorState, { selection });
+    }
+    currentValues.selectionText = getSelectionText(newEditorState);
     return currentValues;
   };
 
@@ -139,8 +160,32 @@ class Link extends Component {
     const { currentEntity } = this.state;
     let selection = editorState.getSelection();
 
+    let newEditorState = editorState;
+    let oldSelection = selection;
+<<<<<<< HEAD
+    if (selection.getAnchorOffset() == selection.getFocusOffset() || !this.props.editorFocused) {
+=======
+    if (selection.getAnchorOffset() == selection.getFocusOffset()) {
+>>>>>>> 8786d4fba5cc10cf419c7647cdb0b23ca4d6f2b3
+      const currentContent = editorState.getCurrentContent();
+      const firstBlock = currentContent.getBlockMap().first();
+      const lastBlock = currentContent.getBlockMap().last();
+      const firstBlockKey = firstBlock.getKey();
+      const lastBlockKey = lastBlock.getKey();
+      const lengthOfLastBlock = lastBlock.getLength();
+
+      selection = new SelectionState({
+        anchorKey: firstBlockKey,
+        anchorOffset: 0,
+        focusKey: lastBlockKey,
+        focusOffset: lengthOfLastBlock,
+      });
+
+      newEditorState = EditorState.set(newEditorState, { selection });
+    }
+
     if (currentEntity) {
-      const entityRange = getEntityRange(editorState, currentEntity);
+      const entityRange = getEntityRange(newEditorState, currentEntity);
       const isBackward = selection.getIsBackward();
       if (isBackward) {
         selection = selection.merge({
@@ -154,7 +199,7 @@ class Link extends Component {
         });
       }
     }
-    const entityKey = editorState
+    const entityKey = newEditorState
       .getCurrentContent()
       .createEntity('LINK', 'MUTABLE', {
         url: linkTarget,
@@ -163,14 +208,14 @@ class Link extends Component {
       .getLastCreatedEntityKey();
 
     let contentState = Modifier.replaceText(
-      editorState.getCurrentContent(),
+      newEditorState.getCurrentContent(),
       selection,
       `${linkTitle}`,
-      editorState.getCurrentInlineStyle(),
+      newEditorState.getCurrentInlineStyle(),
       entityKey
     );
-    let newEditorState = EditorState.push(
-      editorState,
+    newEditorState = EditorState.push(
+      newEditorState,
       contentState,
       'insert-characters'
     );
@@ -188,6 +233,9 @@ class Link extends Component {
       newEditorState.getCurrentInlineStyle(),
       undefined
     );
+    if (oldSelection !== selection) {
+      newEditorState = EditorState.set(newEditorState, { selection: oldSelection });
+    }
     onChange(
       EditorState.push(newEditorState, contentState, 'insert-characters')
     );

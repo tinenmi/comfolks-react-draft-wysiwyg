@@ -1,6 +1,6 @@
 {
   "name": "comfolks-react-draft-wysiwyg",
-  "version": "1.14.7",
+  "version": "1.14.12",
   "description": "A wysiwyg on top of DraftJS.",
   "main": "dist/react-draft-wysiwyg.js",
   "repository": {
@@ -56,10 +56,12 @@
   },
   "dependencies": {
     "classnames": "^2.2.6",
+    "comfolks-react-draft-wysiwyg": "^1.14.10",
     "draftjs-utils": "^0.10.2",
     "html-to-draftjs": "^1.5.0",
     "linkify-it": "^2.2.0",
-    "prop-types": "^15.7.2"
+    "prop-types": "^15.7.2",
+    "supports-color": "^9.2.2"
   },
   "peerDependencies": {
     "draft-js": "^0.10.x || ^0.11.x",
@@ -69,7 +71,7 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build:webpack": "cross-env NODE_ENV=production webpack  --mode production --config config/webpack.config.js",
+    "build:webpack": "webpack  --mode production --config config/webpack.config.js",
     "build": "npm run clean && npm run build:webpack",
     "test": "cross-env BABEL_ENV=test mocha --require config/test-compiler.js config/test-setup.js src/**/*Test.js",
     "lint": "eslint src",

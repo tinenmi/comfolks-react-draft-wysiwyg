@@ -465,7 +465,7 @@ class WysiwygEditor extends Component {
                 config.uploadCallback = uploadCallback;
               }
               
-              return <Control key={index} {...controlProps} config={config} />;
+              return <Control key={index} editorFocused={editorFocused} {...controlProps} config={config} />;
             })}
             {toolbarCustomButtons &&
               toolbarCustomButtons.map((button, index) =>

@@ -22,6 +22,7 @@ const linkifyLink = params => {
 class Link extends Component {
   static propTypes = {
     editorState: PropTypes.object.isRequired,
+    editorFocused: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
     modalHandler: PropTypes.object,
     config: PropTypes.object,
@@ -92,7 +93,7 @@ class Link extends Component {
     let selection = editorState.getSelection();
 
     let newEditorState = editorState;
-    if (selection.getAnchorOffset() == selection.getFocusOffset()) {
+    if (selection.getAnchorOffset() == selection.getFocusOffset() || !this.props.editorFocused) {
       const currentContent = editorState.getCurrentContent();
       const firstBlock = currentContent.getBlockMap().first();
       const lastBlock = currentContent.getBlockMap().last();
@@ -161,7 +162,7 @@ class Link extends Component {
 
     let newEditorState = editorState;
     let oldSelection = selection;
-    if (selection.getAnchorOffset() == selection.getFocusOffset()) {
+    if (selection.getAnchorOffset() == selection.getFocusOffset() || !this.props.editorFocused) {
       const currentContent = editorState.getCurrentContent();
       const firstBlock = currentContent.getBlockMap().first();
       const lastBlock = currentContent.getBlockMap().last();

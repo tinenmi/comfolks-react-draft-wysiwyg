@@ -10,6 +10,7 @@ export default class Inline extends Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     editorState: PropTypes.object.isRequired,
+    editorFocused: PropTypes.bool,
     modalHandler: PropTypes.object,
     config: PropTypes.object,
     translations: PropTypes.object,
@@ -59,7 +60,7 @@ export default class Inline extends Component {
     let selection = editorState.getSelection();
     let newState = editorState;
     let oldSelection = selection;
-    if (selection.getAnchorOffset() == selection.getFocusOffset()) {
+    if (selection.getAnchorOffset() == selection.getFocusOffset() || !this.props.editorFocused) {
       const currentContent = editorState.getCurrentContent();
       const firstBlock = currentContent.getBlockMap().first();
       const lastBlock = currentContent.getBlockMap().last();
